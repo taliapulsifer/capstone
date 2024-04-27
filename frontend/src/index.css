@@ -1,0 +1,106 @@
+body {
+  background-color: #517174;
+}
+
+h1{
+  text-align: center;
+  color: #000000;
+  padding: 20px 20px;
+}
+
+nav{
+  text-align: center;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+.button-container {
+  display: flex; 
+  overflow-x: auto; /* Allow horizontal scrolling */
+  max-width: 100%; /* Ensure the container doesn't exceed the viewport width */
+  background-color: #325453;
+}
+
+.button-container button {
+  margin-right: 20px; /* Add some spacing between buttons */
+}
+
+.search-bar{
+  width: 300px; 
+  padding: 10px; 
+  border: none; 
+  border-radius: 20px; 
+  outline: none; 
+}
+
+.search-button {
+  border-radius: 20px; /* Adjust the value to control the roundness */
+  background-color: #DCBE87; /* Change the color to your desired color */
+  color: black; 
+  border: none;
+  outline: none;
+  padding: 10px 20px;
+}
+
+.book-button{
+  background-color: transparent;
+  outline: none;
+  border: none;
+  padding: 50px 20px;
+}
+
+.book-button img {
+  max-width: 100px; 
+  max-height: 100px; 
+}
+
+.book-title{
+  display: block;
+  text-align: center;
+  margin-top: 5px;
+  font-size: 20px;
+}
+
+.button-container {
+  margin-top: 20px; 
+  background-color: transparent;
+}
+
+.libraryCard{
+  width: 400px;
+  height: 550px;
+  border-radius: 10px;
+  background-color: #DCBE87;
+  color: #000000;
+  border: 1px solid #000000;
+  box-shadow: 0 4px 8px #325453;
+  display: flex;
+  flex-direction: column; /* Align children vertically */
+  justify-content: space-between; /* Distribute space evenly between children */
+  align-items: center;
+  margin: 0 auto;
+  margin-top: 20px;
+  padding: 10px 20px;
+}
+
+.check-out{
+  margin-top: auto;
+}
+
+.check-out-button{
+  border-radius: 20px; /* Adjust the value to control the roundness */
+  background-color: #325453; /* Change the color to your desired color */
+  color: white; 
+  border: none;
+  outline: none;
+  padding: 10px 20px;
+}
+
+.footer{
+  text-align: center;
+  padding: 100px 100px;
+}
+

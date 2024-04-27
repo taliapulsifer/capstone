@@ -1,0 +1,14 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "backend of capstone",
+  "main": "app.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "Talia Pulsifer",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5"
+  }
+}
