@@ -1,6 +1,5 @@
 import './App.css';
 import React, {useState, useEffect} from 'react';
-import axios from 'axios';
 
 function App() {
 
@@ -8,56 +7,58 @@ function App() {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    async function fetchBooks(){
-      try{
-        const response = await axios.get('/books');
-        setBooks(response.data);
-
-        if (books.length === 0) {
-          console.log('The books array is empty.');
-        } else {
-          console.log('The books array is not empty.');
+    async function fetchBooks() {
+      try {
+        const response = await fetch('/books');
+        if (!response.ok) {
+          throw new Error('Failed to fetch books');
         }
-      }
-      catch (error){
-        console.error('Error fetching books: ', error)
+        const data = await response.json();
+        console.log(data);
+        setBooks(data);
+      } catch (error) {
+        console.error('Error fetching books: ', error);
       }
     }
     fetchBooks();
-  }, [books]);
+  }, []);
 
   const handleSearch = async (e) => {
     e.preventDefault();
-    try{
-      const response = await axios.get(`/books?search=${searchTerm}`);
-      setBooks(response.data);
-    }
-    catch (error){
+    try {
+      const response = await fetch(`/books?search=${searchTerm}`);
+      if (!response.ok) {
+        throw new Error('Failed to search books');
+      }
+      const data = await response.json();
+      setBooks(data);
+    } catch (error) {
       console.error('Error searching books: ', error);
     }
   }
+  
 
   return (
     <div>
       <h1>LIBRARY</h1>
       
-      <nav class="navbar navbar-light bg-light">
-        <form class="form-inline" onSubmit={handleSearch}>
+      <nav className="navbar navbar-light bg-light">
+        <form className="form-inline" onSubmit={handleSearch}>
           <input 
-          class="form-control mr-sm-2 search-bar" 
+          className="form-control mr-sm-2 search-bar" 
           type="search" 
           placeholder="Search" 
           aria-label="Search"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <button class="btn btn-outline-success my-2 my-sm-0 search-button" type="submit">
+          <button className="btn btn-outline-success my-2 my-sm-0 search-button" type="submit">
             Search
             </button>
         </form>
       </nav>
       <div className='button-container'>
-      <button type="button" class="btn btn-primary book-button">
+      <button type="button" className="btn btn-primary book-button">
         <img src="/book.png" alt='Book Icon'/>
         <span className='book-title'>Book Title</span>
         </button>
@@ -74,7 +75,7 @@ function App() {
         {/* put the book information here. It should change based on what 
         book in the line of book buttons you press */}
         <div className='check-out'>
-          <button type="button" class="btn btn-primary check-out-button">
+          <button type="button" className="btn btn-primary check-out-button">
             Check Out
             </button>
         </div>

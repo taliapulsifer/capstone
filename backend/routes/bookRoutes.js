@@ -7,6 +7,18 @@ const uri = 'mongodb+srv://taliaPulsifer:vMChD0J3lpFAEtog@library.yiy5hwm.mongod
 
 app.use(bodyParser.json());
 
+// async function connectToDatabase() {
+//     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+//     try {
+//         await client.connect();
+//         console.log('Connected to the database...')
+//         return client.db('library').collection('books');
+//     } catch (error) {
+//         console.error('Error connecting to the database', error);
+//         process.exit(1);
+//     }
+// }
+
 async function connectToDatabase() {
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
     try {
@@ -21,7 +33,8 @@ async function connectToDatabase() {
 
 app.get('/books', async (req, res) => {
     try {
-        const books = await db.find({}).toArray();
+        const bookCollection = await connectToDatabase();
+        const books = await bookCollection.find({}).toArray();
         res.json(books);
     } catch (error) {
         console.error('Error retrieving books: ', error);
@@ -30,58 +43,31 @@ app.get('/books', async (req, res) => {
 });
 
 app.get('/books/:id', async (req, res) => {
-    const bookID = req.params.id;
+        // Get the documents collection
+        const collection = db.collection('mycollection');
+        // Find some documents
+        collection.find({}).toArray(function(err, docs) {
+          if (err) throw err;
+          res.json(docs);
+        });
+      });
+
+app.post('/books', async (req, res) => {
     const bookCollection = await connectToDatabase();
-    try 
-    {
-        const book = await bookCollection.findOne({_id: new ObjectId(bookID)});
-        if(book)
-        {
-            res.json(book);
-        }
-        else
-        {
-            res.status(404).send('Book not found');
-        }
-    } 
-    catch (error) 
-    {
-        console.error('Error retrieving book: ', error);
-        res.status(500).send('Internal server error');
+    const item = {
+        author: req.body.author,
+
+    };
+    console.log(item);
+    console.log(req.body);
+    const result = await bookCollection.insertOne(item);
+    if (result.insertedCount === 1) {
+        res.status(201).json({ message: 'Book added successfully', book: result.ops[0] });
+    } else {
+        res.status(500).send('Failed to add book');
     }
 });
 
-app.post('/books', async (req, res) => {
-    const newBook = req.body;
-    const bookCollection = await connectToDatabase();
-    const result = await bookCollection.insertOne(newBook);
-    res.status(201).send('Book added successfully');
-});
-
-// app.put('/books/:id', async (req, res) => {
-//     const updatedBook = req.body;
-//     const bookId = req.params.id; // Store the book ID for logging
-//     console.log('Updating book with ID:', bookId); // Log the book ID
-//     const bookCollection = await connectToDatabase();
-//     try {
-//         console.log('Updating book in the database...');
-//         const result = await bookCollection.updateOne(
-//             {_id: new ObjectId(bookId)},
-//             {$set: updatedBook}
-//         );
-//         console.log('Update operation result:', result);
-//         if (result.modifiedCount === 1) {
-//             res.status(200).send('Book updated successfully');
-//         } else {
-//             console.log('Book not found for ID:', bookId); // Log if book not found
-//             res.status(404).send('Book not found');
-//         }
-//     } catch (error) {
-//         console.error('Error updating book:', error);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
-//Console out variables!! POST and PUT should look very similar
 app.put('/books/:id', async (req, res) => {
     const bookId = req.params.id;
     const bookUpdates = req.body;
