@@ -45,23 +45,42 @@ code {
   padding: 10px 20px;
 }
 
-.book-button{
-  background-color: transparent;
-  outline: none;
-  border: none;
-  padding: 50px 20px;
+.button-container2 {
+  margin-top: 50px;
+  display: flex;
+  flex-wrap: wrap;
 }
 
-.book-button img {
+.button-container2 button {
+  position: relative;
+  margin-top: 50px; 
+  margin-right: 50px;
+  background-color: transparent;
+  margin: 10px;
+  align-items: center;
+  outline: none;
+  border: none;
+}
+
+.button-container2 .button-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.button-container2 button img {
   max-width: 100px; 
   max-height: 100px; 
+  margin-right: 8px; 
+}
+
+.button-container2 .book-title {
+  margin-top: 5px; /* Adjust spacing between icon and title */
 }
 
 .book-title{
-  display: block;
-  text-align: center;
-  margin-top: 5px;
-  font-size: 20px;
+  position: relative;
+  z-index: 1;
 }
 
 .button-container {
@@ -82,7 +101,7 @@ code {
   justify-content: space-between; /* Distribute space evenly between children */
   align-items: center;
   margin: 0 auto;
-  margin-top: 20px;
+  margin-top: 50px;
   padding: 10px 20px;
 }
 
@@ -90,7 +109,9 @@ code {
   margin-top: auto;
 }
 
-.check-out-button{
+.check-out-button, 
+.return-button{
+  margin-top: 10px; /* Add margin between buttons */
   border-radius: 20px; /* Adjust the value to control the roundness */
   background-color: #325453; /* Change the color to your desired color */
   color: white; 

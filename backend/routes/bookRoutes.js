@@ -43,14 +43,20 @@ app.get('/books', async (req, res) => {
 });
 
 app.get('/books/:id', async (req, res) => {
-        // Get the documents collection
-        const collection = db.collection('mycollection');
-        // Find some documents
-        collection.find({}).toArray(function(err, docs) {
-          if (err) throw err;
-          res.json(docs);
-        });
-      });
+    const bookId = req.params.id;
+    const bookCollection = await connectToDatabase();
+    try {
+        const book = await bookCollection.findOne({ _id: new ObjectId(bookId) });
+        if (!book) {
+            res.status(404).send('Book not found');
+            return;
+        }
+        res.json(book);
+    } catch (error) {
+        console.error('Error retrieving book:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
 
 app.post('/books', async (req, res) => {
     const bookCollection = await connectToDatabase();
@@ -79,16 +85,26 @@ app.put('/books/:id', async (req, res) => {
         await client.connect();
         const db = client.db('library');
         const books = db.collection('books');
-        
-        const updateResult = await books.updateOne(
+
+        const updateResult = await books.findOneAndUpdate(
             { _id: new ObjectId(bookId) },
-            { $set: bookUpdates }
+            { $set:{             
+                title: bookUpdates.title,
+                author: bookUpdates.author,
+                publisher: bookUpdates.publisher,
+                ISBN: bookUpdates.ISBN,
+                status: bookUpdates.status,
+                checkedOutBy: bookUpdates.checkedOutBy,
+                dueDate: bookUpdates.dueDate 
+            }
+            },
+            { returnOriginal: false } // Return the updated document
         );
 
         console.log('Update result:', updateResult);
 
-        if (updateResult.modifiedCount === 1) {
-            res.send({ message: 'Book updated successfully' });
+        if (updateResult.ok === 1) {
+            res.send({ message: 'Book updated successfully', updatedBook: updateResult.value });
         } else {
             res.send({ message: 'No changes made to the book' });
         }
@@ -98,7 +114,7 @@ app.put('/books/:id', async (req, res) => {
     } finally {
         await client.close();
     }
-  }); 
+});
 
 app.delete('/books/:id', async (req, res) => {
     const bookId = req.params.id; // Store the book ID for logging
