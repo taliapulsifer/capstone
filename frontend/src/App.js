@@ -2,36 +2,34 @@ import './App.css';
 import React, {useState, useEffect} from 'react';
 
 function App() {
-
-  const dummyBooks = [
-    { _id: 1, title: 'Dummy Book 1', author: 'Dummy Author 1' },
-    { _id: 2, title: 'Dummy Book 2', author: 'Dummy Author 2' },
-    { _id: 3, title: 'Dummy Book 3', author: 'Dummy Author 3' },
-  ];
-
-  const [books, setBooks] = useState(dummyBooks);
+  const [books, setBooks] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedBook, setSelectedBook] = useState(null);
+  const [showAddBookForm, setShowAddBookForm] = useState(false);
+  const [title, setTitle] = useState('');
+  const [author, setAuthor] = useState('');
+
+  async function fetchBooks() {
+    try {
+      const response = await fetch('http://localhost:5000/api/books');
+      if (!response.ok) {
+        throw new Error('Failed to fetch books');
+      }
+      const data = await response.json();
+      setBooks(data);
+      console.log('');
+      // console.log(response.json());
+    } catch (error) {
+      console.error('Error fetching books: ', error);
+    }
+  }
 
   useEffect(() => {
     console.log('Fetching books...')
-    async function fetchBooks() {
-      try {
-        const response = await fetch('http://localhost:5000/api/books');
-        if (!response.ok) {
-          throw new Error('Failed to fetch books');
-        }
-        const data = await response.json();
-        setBooks(data);
-        console.log('');
-        // console.log(response.json());
-      } catch (error) {
-        console.error('Error fetching books: ', error);
-      }
-    }
     fetchBooks();
   }, []);
 
+  
   const handleSearch = async (e) => {
     e.preventDefault();
     try {
@@ -101,14 +99,41 @@ function App() {
         throw new Error('Failed to update book availability');
       }
 
-      const updatedBooks = books.map(book => (book.id === selectedBook._id ? updatedBook : book));
+      const updatedBooks = books.map(book => (book._id === selectedBook._id ? updatedBook : book));
       setBooks(updatedBooks);
       setSelectedBook(updatedBook);
+      
     } catch (error) {
       console.log('Failed to update book: ', error);
     }
   }
 
+  const handleAddBook = async (e) => {
+    e.preventDefault();
+  
+    const formData = new FormData();
+    formData.append("title", e.currentTarget.elements.title.value);
+    formData.append("author", e.currentTarget.elements.author.value);
+  
+    try {
+      const response = await fetch('http://localhost:5000/api/books', {
+        method: 'POST',
+        body: formData,
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to add book');
+      }
+  
+      fetchBooks();
+      setShowAddBookForm(false);
+    } catch (error) {
+      console.error('Error adding book: ', error);
+    }
+  }
+  
+  //document.getElementById("myForm").addEventListener("submit", handleAddBook);
+  
   return (
     <div>
       <h1>LIBRARY</h1>
@@ -159,6 +184,27 @@ function App() {
             Return
           </button>
         </div>
+      </div>
+      <div>
+      <button className="btn btn-primary btn-add-book" onClick={handleAddBook}>Add Book</button>
+        
+        {/* Book form modal */}
+        {showAddBookForm && (
+          <div className="modal">
+            <div className="modal-content">
+            <form onSubmit={handleAddBook}>
+                {/* Input fields for book details */}
+                <label>Title:</label>
+                <input type="text" name="title" placeholder='Title' value={title} onChange={(e) => setTitle(e.target.value)} />
+                <label>Author:</label>
+                <input type="text" name="author" placeholder='Author' value={author} onChange={(e) => setAuthor(e.target.value)} />
+                {/* Other input fields */}
+                <button type="submit">Add Book</button>
+            </form>
+              <button onClick={() => setShowAddBookForm(false)}>Close</button>
+            </div>
+          </div>
+        )}
       </div>
       <div className='footer'>
       <a href="https://www.flaticon.com/free-icons/reading" title="reading icons">Reading icons created by Leremy - Flaticon</a>
