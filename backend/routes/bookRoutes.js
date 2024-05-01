@@ -7,18 +7,6 @@ const uri = 'mongodb+srv://taliaPulsifer:vMChD0J3lpFAEtog@library.yiy5hwm.mongod
 
 app.use(bodyParser.json());
 
-// async function connectToDatabase() {
-//     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-//     try {
-//         await client.connect();
-//         console.log('Connected to the database...')
-//         return client.db('library').collection('books');
-//     } catch (error) {
-//         console.error('Error connecting to the database', error);
-//         process.exit(1);
-//     }
-// }
-
 async function connectToDatabase() {
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
     try {
@@ -74,6 +62,22 @@ app.post('/books', async (req, res) => {
     }
 });
 
+app.post('/archiveBooks', async (req, res) => {
+    const bookCollection = await connectToDatabase();
+    const item = {
+        author: req.body.author,
+
+    };
+    console.log(item);
+    console.log(req.body);
+    const result = await bookCollection.insertOne(item);
+    if (result.insertedCount === 1) {
+        res.status(201).json({ message: 'Book added successfully', book: result.ops[0] });
+    } else {
+        res.status(500).send('Failed to add book');
+    }
+});
+
 app.put('/books/:id', async (req, res) => {
     const bookId = req.params.id;
     const bookUpdates = req.body;
@@ -103,7 +107,7 @@ app.put('/books/:id', async (req, res) => {
 
         console.log('Update result:', updateResult);
 
-        if (updateResult.ok === 1) {
+        if (updateResult.modifiedCount > 0) {
             res.send({ message: 'Book updated successfully', updatedBook: updateResult.value });
         } else {
             res.send({ message: 'No changes made to the book' });
