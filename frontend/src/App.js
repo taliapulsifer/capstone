@@ -9,7 +9,7 @@ function App() {
   useEffect(() => {
     async function fetchBooks() {
       try {
-        const response = await fetch('/books');
+        const response = await fetch('http://localhost:5000/api/books');
         if (!response.ok) {
           throw new Error('Failed to fetch books');
         }
