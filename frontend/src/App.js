@@ -1,13 +1,14 @@
 import './App.css';
 import React, {useState, useEffect} from 'react';
+import BookForm from './components/BookForm';
 
 function App() {
   const [books, setBooks] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedBook, setSelectedBook] = useState(null);
   const [showAddBookForm, setShowAddBookForm] = useState(false);
-  const [title, setTitle] = useState('');
-  const [author, setAuthor] = useState('');
+  //const [title, setTitle] = useState('');
+  //const [author, setAuthor] = useState('');
 
   async function fetchBooks() {
     try {
@@ -18,7 +19,6 @@ function App() {
       const data = await response.json();
       setBooks(data);
       console.log('');
-      // console.log(response.json());
     } catch (error) {
       console.error('Error fetching books: ', error);
     }
@@ -49,13 +49,36 @@ function App() {
     setSelectedBook(book);
   }
 
+  const archiveBook = async (book) => {
+    console.log("In archiveBook function...")
+
+    try {
+      console.log("Trying to archive book...")
+      const response = await fetch('http://localhost:5000/api/archiveBooks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(book)
+      });
+      console.log(response);
+  
+      if (!response.ok) {
+        throw new Error('Failed to archive book');
+      }
+      
+    } catch (error) {
+      console.error('Error archiving book: ', error);
+    }
+  };
+
   const handleCheckout = async () => {
     const currentDate = new Date();
     const dueDate = new Date(currentDate);
     dueDate.setMonth(currentDate.getMonth() + 1);
-
+  
     const formattedDueDate = dueDate.toISOString().split('T')[0];
-
+  
     const updatedBook = { ...selectedBook, avail: false, due: formattedDueDate};
     try {
       const response = await fetch(`http://localhost:5000/api/books/${selectedBook._id}`, {
@@ -69,15 +92,17 @@ function App() {
       if (!response.ok) {
         throw new Error('Failed to update book availability');
       }
-
-      // Update the books state to reflect the change
+  
       const updatedBooks = books.map(book => (book._id === selectedBook._id ? updatedBook : book));
       setBooks(updatedBooks);
       setSelectedBook(updatedBook);
+  
+      await archiveBook(selectedBook);
     } catch (error) {
       console.log('Error updating book: ', error);
     }
-  }
+  };
+  
 
   const handleReturn = async () => {
     const updatedBook = {
@@ -108,32 +133,27 @@ function App() {
     }
   }
 
-  const handleAddBook = async (e) => {
-    e.preventDefault();
-  
-    const formData = new FormData();
-    formData.append("title", e.currentTarget.elements.title.value);
-    formData.append("author", e.currentTarget.elements.author.value);
-  
+  const handleSubmitBook = async (formData) => {
     try {
+      // Add the 'avail' field with a value of true to the form data
+      const bookData = { ...formData, avail: true };
+  
       const response = await fetch('http://localhost:5000/api/books', {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(bookData)
       });
-  
-      if (!response.ok) {
-        throw new Error('Failed to add book');
-      }
-  
+      
+      // Refresh the book list after adding a new book
       fetchBooks();
-      setShowAddBookForm(false);
     } catch (error) {
       console.error('Error adding book: ', error);
     }
-  }
+  };
   
-  //document.getElementById("myForm").addEventListener("submit", handleAddBook);
-  
+
   return (
     <div>
       <h1>LIBRARY</h1>
@@ -158,7 +178,7 @@ function App() {
         {books.map(book => (
           <button key={book._id} type="button" className="btn btn-light" onClick={() => handleBookClick(book)}>
             <div className="button-content">
-              <img src="/book.png" alt='Book Icon'/>
+            <img src={book.avail ? "/book.png" : "/unavailableBook.png"} alt='Book Icon'/>
               <span className="book-title">{book.title}</span>
             </div>
           </button>
@@ -186,25 +206,8 @@ function App() {
         </div>
       </div>
       <div>
-      <button className="btn btn-primary btn-add-book" onClick={handleAddBook}>Add Book</button>
-        
-        {/* Book form modal */}
-        {showAddBookForm && (
-          <div className="modal">
-            <div className="modal-content">
-            <form onSubmit={handleAddBook}>
-                {/* Input fields for book details */}
-                <label>Title:</label>
-                <input type="text" name="title" placeholder='Title' value={title} onChange={(e) => setTitle(e.target.value)} />
-                <label>Author:</label>
-                <input type="text" name="author" placeholder='Author' value={author} onChange={(e) => setAuthor(e.target.value)} />
-                {/* Other input fields */}
-                <button type="submit">Add Book</button>
-            </form>
-              <button onClick={() => setShowAddBookForm(false)}>Close</button>
-            </div>
-          </div>
-        )}
+        {/* Form should go here */}
+        <BookForm onSubmit={handleSubmitBook} />
       </div>
       <div className='footer'>
       <a href="https://www.flaticon.com/free-icons/reading" title="reading icons">Reading icons created by Leremy - Flaticon</a>
@@ -216,11 +219,3 @@ function App() {
 }
 
 export default App;
-
-//Colors:
-//DCBE87 - Light Brown
-//AD6A34 - Medium Brown
-//4E1D04 - Dark Brown
-//EF5D58 - Bright Pink
-//517174 - Light Teal
-//325453 - Dark Teal
